@@ -2420,11 +2420,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-def hide_cal_tab(self):
-idx = self.nb.GetPageIndex(self.calTab)
-if idx != wx.NOT_FOUND:
-    self.nb.RemovePage(idx)   # keeps self.calTab alive
-    self.calTab.Hide()        # optional: ensure invisible
