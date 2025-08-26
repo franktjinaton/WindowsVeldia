@@ -1537,15 +1537,15 @@ class Main(wx.Frame):
         nb = wx.Notebook(nb_panel)
         self.infoTab = wx.Panel(nb, name = 'info')
         # self.settingsTab = wx.Panel(nb, name='settings')
-        self.calTab = wx.Panel(nb, name = 'cal')
+        # self.calTab = wx.Panel(nb, name = 'cal')
 
         layout.infoTabLayout(self.infoTab)
         # layout.settingsTabLayout(self.settingsTab)
-        layout.calTabLayout(self.calTab)
+        # layout.calTabLayout(self.calTab)
 
         nb.AddPage(self.infoTab, 'Info')
         # nb.AddPage(self.settingsTab, 'Settings')
-        nb.AddPage(self.calTab, 'Calibration && Misc')
+        # nb.AddPage(self.calTab, 'Calibration && Misc')
 
         # for c in ChildIter.iterNamed(self.settingsTab):
         #    c.Name = 'eeprom_' + c.Name
@@ -1553,8 +1553,8 @@ class Main(wx.Frame):
         for c in ChildIter.iterNamed(self.infoTab):
             c.Name = 'info_' + c.Name
 
-        for c in ChildIter.iterNamed(self.calTab):
-            c.Name = 'cal_' + c.Name
+        # for c in ChildIter.iterNamed(self.calTab):
+        #     c.Name = 'cal_' + c.Name
         
         # apply field annotations
 
