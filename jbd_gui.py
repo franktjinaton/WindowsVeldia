@@ -43,14 +43,24 @@ import bmstools
 import bmstools.jbd as jbd
 from bmstools.jbd.logging import Logger
 
-appName = 'JBD BMS Tools'
-appVersion = bmstools.version
+appName = 'VELDIA BMS Tools1'
+appVersion = bmstools.__version__
 appUrl = 'https://gitlab.com/MrSurly/bms-tools'
 author = 'Eric Poulsen'
 authorEmail = 'eric@zyxod.com'
 authorFullEmail = '"Eric Poulsen" <eric@zyxod.com>'
 releaseDate = 'N/A'
 appNameWithVersion = f'{appName} {appVersion}'
+
+# new
+def resource_path(relative_path):
+    import sys, os
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
+
+
+# 
+
 
 try:
     # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -645,10 +655,11 @@ class LayoutGen:
         sbs = wx.StaticBoxSizer(sb, wx.VERTICAL)
         panel.SetSizer(sbs)
 
-        cf_en_svg = os.path.join(base_path, 'img', 'chg_fet_enabled.svg')
-        cf_dis_svg = os.path.join(base_path, 'img', 'chg_fet_disabled.svg')
-        df_en_svg = os.path.join(base_path, 'img', 'dsg_fet_enabled.svg')
-        df_dis_svg = os.path.join(base_path, 'img', 'dsg_fet_disabled.svg')
+        cf_en_svg = resource_path(os.path.join('img', 'chg_fet_enabled.svg'))
+        cf_dis_svg = resource_path(os.path.join('img', 'chg_fet_disabled.svg'))
+        df_en_svg = resource_path(os.path.join('img', 'dsg_fet_enabled.svg'))
+        df_dis_svg = resource_path(os.path.join('img', 'dsg_fet_disabled.svg'))
+
 
         chg_fet_img = BoolImage(sb, cf_en_svg, cf_dis_svg, 'chg_fet_status_img')
         dsg_fet_img = BoolImage(sb, df_en_svg, df_dis_svg, 'dsg_fet_status_img')
@@ -1525,19 +1536,19 @@ class Main(wx.Frame):
 
         nb = wx.Notebook(nb_panel)
         self.infoTab = wx.Panel(nb, name = 'info')
-        self.settingsTab = wx.Panel(nb, name='settings')
+        # self.settingsTab = wx.Panel(nb, name='settings')
         self.calTab = wx.Panel(nb, name = 'cal')
 
         layout.infoTabLayout(self.infoTab)
-        layout.settingsTabLayout(self.settingsTab)
+        # layout.settingsTabLayout(self.settingsTab)
         layout.calTabLayout(self.calTab)
 
         nb.AddPage(self.infoTab, 'Info')
-        nb.AddPage(self.settingsTab, 'Settings')
+        # nb.AddPage(self.settingsTab, 'Settings')
         nb.AddPage(self.calTab, 'Calibration && Misc')
 
-        for c in ChildIter.iterNamed(self.settingsTab):
-            c.Name = 'eeprom_' + c.Name
+        # for c in ChildIter.iterNamed(self.settingsTab):
+        #    c.Name = 'eeprom_' + c.Name
 
         for c in ChildIter.iterNamed(self.infoTab):
             c.Name = 'info_' + c.Name
@@ -1834,7 +1845,7 @@ class Main(wx.Frame):
 
     def onEepromDone(self, evt):
         self.accessLock.release()
-        self.settingsTab.Enable(True)
+        # self.settingsTab.Enable(True)
         self.worker.join()
         if isinstance(evt.data, Exception):
             traceback.print_tb(evt.data.__traceback__)
@@ -2133,13 +2144,13 @@ class Main(wx.Frame):
 
     def readEeprom(self):
         self.accessLock.acquire()
-        self.settingsTab.Enable(False)
+     #   self.settingsTab.Enable(False)
         self.worker.runOnce(self.worker.readEepromWorker)
 
     def writeEeprom(self):
         data = self.gatherEeprom()
         self.accessLock.acquire()
-        self.settingsTab.Enable(False)
+      #  self.settingsTab.Enable(False)
         self.worker.runOnce(self.worker.writeEepromWorker, data)
 
     def loadEeprom(self):
@@ -2344,25 +2355,53 @@ selecting the "Issues" tab.
 Thanks.
 
 -- Eric'''
+import logging
+
 class JBDApp(wx.App):
     def __init__(self, *args, **kwargs):
         self.cli_args = kwargs.pop('cli_args', None)
         super().__init__(*args, **kwargs)
 
     def OnInit(self):
-        configAppName = appName.lower().replace(' ','_') 
-        self.SetAppName(configAppName)
-        self.SetAppDisplayName(appName)
-        icon = wx.Icon(os.path.join(base_path, 'img', 'batt_icon_128.ico'))
-        main = Main(None, title = appNameWithVersion, style = wx.DEFAULT_FRAME_STYLE | wx.WS_EX_VALIDATE_RECURSIVELY, icon = icon, cli_args = self.cli_args)
-        main.Show()
+        logging.basicConfig(filename='oninit_debug.log', level=logging.DEBUG)
+        logging.debug("Start OnInit")
 
-        if not self.cli_args or not self.cli_args.no_warning:
-            # startup warning
-            d = wx.MessageDialog(None, warningMsg)
-            d.ShowModal()
+        try:
+            configAppName = appName.lower().replace(' ', '_')
+            self.SetAppName(configAppName)
+            self.SetAppDisplayName(appName)
 
-        return True
+            def resource_path(relative_path):
+                import sys, os
+                base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+                return os.path.join(base_path, relative_path)
+
+            icon_path = resource_path(os.path.join('img', 'batt_icon_128.ico'))
+            cf_en_svg = resource_path(os.path.join('img', 'chg_fet_enabled.svg'))
+            cf_dis_svg = resource_path(os.path.join('img', 'chg_fet_disabled.svg'))
+            # chg_fet_img = BoolImage(sb, cf_en_svg, cf_dis_svg, 'chg_fet_status_img')
+            # chg_fet_img = BoolImage(cf_en_svg, cf_dis_svg, 'chg_fet_status_img')
+            logging.debug(f"Icon path: {icon_path}")
+            icon = wx.Icon(icon_path)
+
+            main = Main(None, title=appNameWithVersion,
+                        style=wx.DEFAULT_FRAME_STYLE | wx.WS_EX_VALIDATE_RECURSIVELY,
+                        icon=icon, cli_args=self.cli_args)
+
+            logging.debug("Voor main.Show")
+            main.Show()
+            logging.debug("Na main.Show")
+
+            if not self.cli_args or not self.cli_args.no_warning:
+                d = wx.MessageDialog(None, warningMsg)
+                d.ShowModal()
+
+            return True
+        except Exception:
+            logging.exception("Fout in OnInit")
+            return False
+
+
 
 def main():
     import argparse
@@ -2381,3 +2420,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+def hide_cal_tab(self):
+idx = self.nb.GetPageIndex(self.calTab)
+if idx != wx.NOT_FOUND:
+    self.nb.RemovePage(idx)   # keeps self.calTab alive
+    self.calTab.Hide()        # optional: ensure invisible
